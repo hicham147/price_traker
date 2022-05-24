@@ -1,0 +1,123 @@
+{%extends 'main.html'%}
+{%block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>ihreb price traker</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <style>
+    /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
+    .row.content {height: 1500px}
+    
+    /* Set gray background color and 100% height */
+    .sidenav {
+      background-color: #f1f1f1;
+      height: 100%;
+    }
+    
+    /* Set black background color, white text and some padding */
+    footer {
+      background-color: #555;
+      color: white;
+      padding: 15px;
+    }
+    
+    /* On small screens, set height to 'auto' for sidenav and grid */
+    @media screen and (max-width: 767px) {
+      .sidenav {
+        height: auto;
+        padding: 15px;
+      }
+      .row.content {height: auto;} 
+    }
+  </style>
+</head>
+<body>
+  {% if messages %}
+  {% for message in messages %}
+      <div class="alert alert-dismissible alert-success container">
+        <button type="button" class="close" data-dismiss="alert">
+        </button>
+        <strong>{{message}}<strong>
+      </div>
+  {% endfor %}
+  {% endif %}
+
+
+  <div class="container">
+    <!-- The Modal -->
+    <div class="modal" id="myModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+        
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title">Add a new item to Track</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          {% load crispy_forms_tags %}
+          <!-- Modal body -->
+          <div class="modal-body">
+            <form  action='' method="POST" autocomplete="off" >
+                {%csrf_token %}
+                  {{form|crispy}} 
+                  <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary" >save</button></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<div class=container>
+      {%if qr%}
+          <h3> Total number of itmes being traked: <span class="badge bg-secondary">{{items_number}}</span></h3>
+          <h3> Descount itmes: <span class="badge bg-secondary">{{items_descount}}</span></h3>
+          
+          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal" >Add</button>
+          <a href={% url "update-prices" %}>
+          <button type="button" class="btn btn-primary" >Update</button>
+          </a>
+      {%for item in qr%}
+          <div class="col-sm-9 mt-3">
+            <div class="card">
+              <h3 class="card-header">{{item.title}}</h3>
+              <div class="card-body">
+                <h4 class="card-title">Current Price (SAR) :  {{item.current_price}} </h4>
+                <h4 class="card-title">Old Price  (SAR) :  {{item.old_price}} </h4>
+                {%if item.price_difference < 0 %}
+                    <h4 class="text-danger">Descount  (SAR) :  {{item.price_difference}} </h4>
+                {% elif  item.price_difference > 0  %}
+                    <h4 class="text-success">Price hike  (SAR) :  {{item.price_difference}} </h4>
+                {%endif%}
+                <h4 class="card-title">Product Link : 
+                  <a class="nav-link active" href={{item.url}}>{{item.url}}</a></h4>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <h4 class="text-success">Last Update :  {{item.updated}} </h4>
+                  <a href={% url 'ihr-dell' item.id%}>
+                    <button class="btn btn-danger me-md-2" type="button">Delete </button>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+      {%endfor %}
+      {%else %}
+          <div class="alert alert-primary d-flex align-items-center" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+              <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </svg>
+              <div>
+                Sorry,no item has been traked !
+              </div>
+          </div>
+          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">Add Now </button>
+
+      {%endif %}
+</div>
+
+{%endblock%}
